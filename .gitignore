@@ -1,0 +1,18 @@
+# Volumes
+volumes/*
+!volumes/.gitkeep
+
+# Environment
+.env
+
+# IDE files
+.idea/
+.vscode/
+
+# Build files
+**/target/
+**/build/
+**/dist/
+
+# Logs
+*.log 
