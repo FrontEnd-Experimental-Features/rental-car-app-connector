@@ -9,6 +9,7 @@ services:
     volumes:
       - ./volumes/zookeeper/data:/var/lib/zookeeper/data
       - ./volumes/zookeeper/log:/var/lib/zookeeper/log
+    user: "0:0"
     networks:
       - car-rental-network
 
@@ -27,6 +28,7 @@ services:
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=${KAFKA_REPLICATION_FACTOR:-1}
     volumes:
       - ./volumes/kafka/data:/var/lib/kafka/data
+    user: "0:0"
     networks:
       - car-rental-network
 
@@ -37,11 +39,14 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - ./volumes/redis/data:/data
+    sysctls:
+      - net.core.somaxconn=511
+      - vm.overcommit_memory=1
     networks:
       - car-rental-network
 
   redis-commander:
-    image: rediscommander/redis-commander:latest
+    image: ghcr.io/joeferner/redis-commander:latest
     environment:
       - REDIS_HOSTS=local:${REDIS_SERVICE_NAME:-redis}:${REDIS_PORT:-6379}
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redispass}
