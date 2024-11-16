@@ -7,9 +7,8 @@ services:
       - ZOOKEEPER_CLIENT_PORT=${ZOOKEEPER_PORT:-2181}
       - ZOOKEEPER_TICK_TIME=${ZOOKEEPER_TICK_TIME:-2000}
     volumes:
-      - ./volumes/zookeeper/data:/var/lib/zookeeper/data
-      - ./volumes/zookeeper/log:/var/lib/zookeeper/log
-    user: "0:0"
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
     networks:
       - car-rental-network
 
@@ -27,8 +26,7 @@ services:
       - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=${KAFKA_REPLICATION_FACTOR:-1}
     volumes:
-      - ./volumes/kafka/data:/var/lib/kafka/data
-    user: "0:0"
+      - kafka_data:/var/lib/kafka/data
     networks:
       - car-rental-network
 
@@ -38,7 +36,7 @@ services:
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
-      - ./volumes/redis/data:/data
+      - redis_data:/data
     sysctls:
       - net.core.somaxconn=511
       - vm.overcommit_memory=1
@@ -46,10 +44,9 @@ services:
       - car-rental-network
 
   redis-commander:
-    image: ghcr.io/joeferner/redis-commander:latest
+    image: rediscommander/redis-commander:latest
     environment:
-      - REDIS_HOSTS=local:${REDIS_SERVICE_NAME:-redis}:${REDIS_PORT:-6379}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redispass}
+      - REDIS_HOSTS=local:${REDIS_SERVICE_NAME:-redis}:${REDIS_PORT:-6379}:0:${REDIS_PASSWORD:-redispass}
     ports:
       - "${REDIS_COMMANDER_PORT:-8081}:8081"
     depends_on:
@@ -57,13 +54,12 @@ services:
     networks:
       - car-rental-network
 
-volumes:
-  zookeeper-data:
-  zookeeper-logs:
-  kafka-data:
-  redis-data:
-  car-rental-data:
-
 networks:
   car-rental-network:
     driver: bridge
+
+volumes:
+  zookeeper_data:
+  zookeeper_log:
+  kafka_data:
+  redis_data:
